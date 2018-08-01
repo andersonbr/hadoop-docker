@@ -6,6 +6,11 @@ MAINTAINER Anderson Calixto andersonbr@gmail.com
 ENV HADOOP_VERSION 3.0.3
 ENV HADOOP_HOME /opt/hadoop
 ENV HADOOP_USER hadoop
+ENV HDFS_NAMENODE_USER ${HADOOP_USER}
+ENV HDFS_SECONDARYNAMENODE_USER ${HADOOP_USER}
+ENV HDFS_DATANODE_USER ${HADOOP_USER}
+ENV YARN_NODEMANAGER_USER ${HADOOP_USER}
+ENV YARN_RESOURCEMANAGER_USER ${HADOOP_USER} 
 ENV HADOOP_DOWNLOAD_URL http://www.apache.org/dist/hadoop/common/hadoop-3.0.3/hadoop-3.0.3.tar.gz
 
 ENV HADOOP_COMMON_HOME ${HADOOP_HOME}
@@ -13,7 +18,8 @@ ENV HADOOP_HDFS_HOME ${HADOOP_HOME}
 ENV HADOOP_MAPRED_HOME ${HADOOP_HOME}
 ENV HADOOP_YARN_HOME ${HADOOP_HOME}
 ENV HADOOP_CONF_DIR ${HADOOP_HOME}/etc/hadoop
-ENV YARN_CONF_DIR ${HADOOP_HOME}/etc/hadoop
+ENV HDFS_NAMENODE_DIR ${HADOOP_HOME}/hdfs/namenode
+ENV HDFS_DATANODE_DIR ${HADOOP_HOME}/hdfs/datanode
 
 # Apply JAVA_HOME
 RUN . /etc/environment
@@ -48,6 +54,7 @@ RUN echo export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop >> $HADOOP_HOME/etc/ha
 
 #RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME=$JAVA_HOME\nexport HADOOP_PREFIX=$HADOOP_PREFIX\nexport HADOOP_HOME=$HADOOP_PREFIX\n:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 #RUN sed -i '/^export HADOOP_CONF_DIR/ s:.*:export HADOOP_CONF_DIR=$HADOOP_PREFIX/etc/hadoop/:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+ADD hdfs-site.xml.template $HADOOP_HOME/etc/hadoop/hdfs-site.xml.template
 ADD core-site.xml.template $HADOOP_HOME/etc/hadoop/core-site.xml.template
 RUN chown -R ${HADOOP_USER}:${HADOOP_USER} ${HADOOP_HOME};
 
@@ -56,14 +63,10 @@ RUN chown root:root /etc/bootstrap.sh
 RUN chmod 700 /etc/bootstrap.sh
 ENV BOOTSTRAP /etc/bootstrap.sh
 
-# ssh fix
-# fix the 254 error code
-# RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
-# RUN echo "UsePAM no" > /etc/ssh/sshd_config
-# 2122
-# RUN echo "Port 22" >> /etc/ssh/sshd_config
+# env files
+RUN echo '#!/bin/bash'"\n\nexport PATH=$PATH:"${HADOOP_HOME}"/bin:"${HADOOP_HOME}"/sbin" > /etc/profile.d/hadoop.sh
 
-# RUN echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
+# ssh fix
 RUN echo "AuthorizedKeysFile .ssh/authorized_keys" >> /etc/ssh/sshd_config
 RUN chmod 0700 ${HADOOP_HOME}/.ssh
 RUN chmod 0600 ${HADOOP_HOME}/.ssh/*
