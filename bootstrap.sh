@@ -41,9 +41,15 @@ service ssh start
 #HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
 #HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
 
-$HADOOP_HOME/sbin/start-dfs.sh
-$HADOOP_HOME/sbin/start-yarn.sh
+#$HADOOP_HOME/sbin/start-dfs.sh
+#$HADOOP_HOME/sbin/start-yarn.sh
 #$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver # deprecated
+
+hdfs --daemon start namenode
+hdfs --daemon start datanode
+yarn --daemon start resourcemanager
+yarn --daemon start nodemanager
+yarn --daemon start proxyserver
 su -l $HADOOP_USER -c "$HADOOP_HOME/bin/mapred --daemon start historyserver"
 
 if [[ $1 == "-d" ]]; then
