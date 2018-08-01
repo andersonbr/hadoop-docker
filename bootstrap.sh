@@ -1,8 +1,9 @@
 #!/bin/bash
 
 : ${HADOOP_HOME:=/opt/hadoop}
+: ${HADOOP_USER:=hadoop}
 
-$HADOOP_HOME/etc/hadoop/hadoop-env.sh
+# $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
 rm -f /tmp/*.pid
 
@@ -14,6 +15,9 @@ rm -f /tmp/*.pid
 
 
 service ssh start
+
+su - $HADOOP_USER sbin/start-all.sh &
+
 #$HADOOP_HOME/sbin/start-dfs.sh
 #$HADOOP_HOME/sbin/start-yarn.sh
 #$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
