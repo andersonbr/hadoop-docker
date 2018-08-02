@@ -4,6 +4,8 @@ MAINTAINER Anderson Calixto andersonbr@gmail.com
 
 # Init ENV
 ENV HADOOP_VERSION 3.0.3
+#ENV HADOOP_VERSION 2.7.7
+#ENV HADOOP_VERSION 2.9.1
 ENV HADOOP_HOME /opt/hadoop
 ENV HADOOP_USER hadoop
 ENV HDFS_NAMENODE_USER ${HADOOP_USER}
@@ -11,7 +13,8 @@ ENV HDFS_SECONDARYNAMENODE_USER ${HADOOP_USER}
 ENV HDFS_DATANODE_USER ${HADOOP_USER}
 ENV YARN_NODEMANAGER_USER ${HADOOP_USER}
 ENV YARN_RESOURCEMANAGER_USER ${HADOOP_USER} 
-ENV HADOOP_DOWNLOAD_URL http://www.apache.org/dist/hadoop/common/hadoop-3.0.3/hadoop-3.0.3.tar.gz
+#ENV HADOOP_DOWNLOAD_URL http://www.apache.org/dist/hadoop/common/hadoop-3.0.3/hadoop-3.0.3.tar.gz
+ENV HADOOP_DOWNLOAD_URL http://www.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz
 
 ENV HADOOP_COMMON_HOME ${HADOOP_HOME}
 ENV HADOOP_HDFS_HOME ${HADOOP_HOME}
@@ -37,7 +40,7 @@ RUN useradd -s /bin/bash -d ${HADOOP_HOME} ${HADOOP_USER};
 # download
 #RUN curl -s ${HADOOP_DOWNLOAD_URL} | tar -xz -C /opt
 #RUN cd /opt && mv hadoop-* hadoop
-ADD ./hadoop-3.0.3 ${HADOOP_HOME}
+ADD ./hadoop-${HADOOP_VERSION} ${HADOOP_HOME}
 
 # passwordless ssh
 RUN rm -f /etc/ssh/ssh_host_dsa_key /etc/ssh/ssh_host_rsa_key ${HADOOP_HOME}/.ssh/id_rsa ${HADOOP_HOME}/.ssh/authorized_keys
@@ -46,6 +49,8 @@ RUN ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key
 RUN ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key
 RUN ssh-keygen -q -N "" -t rsa -f ${HADOOP_HOME}/.ssh/id_rsa
 RUN cp ${HADOOP_HOME}/.ssh/id_rsa.pub ${HADOOP_HOME}/.ssh/authorized_keys
+RUN cp -a ${HADOOP_HOME}/.ssh /root/.ssh
+RUN chown -R root:root /root/.ssh
 
 # mod hadoop files
 RUN echo export JAVA_HOME=${JAVA_HOME} >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
@@ -55,6 +60,7 @@ RUN echo export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop >> $HADOOP_HOME/etc/ha
 #RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME=$JAVA_HOME\nexport HADOOP_PREFIX=$HADOOP_PREFIX\nexport HADOOP_HOME=$HADOOP_PREFIX\n:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 #RUN sed -i '/^export HADOOP_CONF_DIR/ s:.*:export HADOOP_CONF_DIR=$HADOOP_PREFIX/etc/hadoop/:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 ADD hdfs-site.xml.template $HADOOP_HOME/etc/hadoop/hdfs-site.xml.template
+ADD yarn-site.xml.template $HADOOP_HOME/etc/hadoop/yarn-site.xml.template
 ADD core-site.xml.template $HADOOP_HOME/etc/hadoop/core-site.xml.template
 RUN chown -R ${HADOOP_USER}:${HADOOP_USER} ${HADOOP_HOME};
 

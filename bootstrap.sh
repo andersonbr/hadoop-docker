@@ -17,6 +17,7 @@ function pathfix() {
 }
 # altering configuration
 sed s/HOSTNAME/master/ $HADOOP_HOME/etc/hadoop/core-site.xml.template > $HADOOP_HOME/etc/hadoop/core-site.xml
+sed s/HOSTNAME/master/ $HADOOP_HOME/etc/hadoop/yarn-site.xml.template > $HADOOP_HOME/etc/hadoop/yarn-site.xml
 #
 cat $HADOOP_HOME/etc/hadoop/hdfs-site.xml.template > $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 sed -i s/NAMENODE_DIR/`pathfix $HDFS_NAMENODE_DIR`/ $HADOOP_HOME/etc/hadoop/hdfs-site.xml
@@ -38,24 +39,25 @@ for a in `ls -l hdfs|grep root|awk '{print $9}'`; do chown -R $HADOOP_USER:$HADO
 
 service ssh start
 
-#HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
-#HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
-
-#$HADOOP_HOME/sbin/start-dfs.sh
-#$HADOOP_HOME/sbin/start-yarn.sh
-#$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver # deprecated
-
-hdfs --daemon start namenode
-hdfs --daemon start datanode
-yarn --daemon start resourcemanager
-yarn --daemon start nodemanager
-yarn --daemon start proxyserver
+# 3.0.3
+if [ "$HADOOP_VERSION" = "3.0.3" ]; then
+$HADOOP_HOME/bin/hdfs --daemon start namenode
+$HADOOP_HOME/bin/hdfs --daemon start datanode
+$HADOOP_HOME/bin/yarn --daemon start resourcemanager
+$HADOOP_HOME/bin/yarn --daemon start nodemanager
+su -l $HADOOP_USER -c "$HADOOP_HOME/bin/yarn --daemon start proxyserver"
 su -l $HADOOP_USER -c "$HADOOP_HOME/bin/mapred --daemon start historyserver"
+else
+#HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
+#HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
+$HADOOP_HOME/sbin/start-dfs.sh
+$HADOOP_HOME/sbin/start-yarn.sh
+$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
+fi
 
 if [[ $1 == "-d" ]]; then
   while true; do sleep 1000; done
 fi
-
 if [[ $1 == "-bash" ]]; then
   /bin/bash
 fi

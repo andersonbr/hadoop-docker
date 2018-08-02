@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+
+  master:
+    image: hadoop:3.0.3
+    command: /etc/bootstrap.sh -d
+    container_name: master
+    volumes:
+       - ./master/hdfs:/opt/hadoop/hdfs
+       - ./spark-2.3.1-bin-hadoop2.7:/opt/spark
+       - ./tmp:/opt/hadoop/tmp
+    environment:
+       - SPARK_HOME=/opt/spark
+
+  slave1:
+    image: hadoop:3.0.3
+    command: /etc/bootstrap.sh -d
+    container_name: slave1
+    volumes:
+       - ./slave/hdfs:/opt/hadoop/hdfs
+       - ./spark-2.3.1-bin-hadoop2.7:/opt/spark
+       - ./tmp:/opt/hadoop/tmp
+    environment:
+       - SPARK_HOME=/opt/spark
