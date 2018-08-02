@@ -23,16 +23,17 @@ cat $HADOOP_HOME/etc/hadoop/hdfs-site.xml.template > $HADOOP_HOME/etc/hadoop/hdf
 sed -i s/NAMENODE_DIR/`pathfix $HDFS_NAMENODE_DIR`/ $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 sed -i s/DATANODE_DIR/`pathfix $HDFS_DATANODE_DIR`/ $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 
+###########################################################################################
+# hdfs path criar/formatar
 if [ ! -d "$HDFS_NAMENODE_DIR" ]; then
-  mkdir -p $HDFS_NAMENODE_DIR
-  chown -R $HADOOP_USER:$HADOOP_USER $HDFS_NAMENODE_DIR
-  hadoop namenode -format 1>/dev/null 2>/dev/null
+    mkdir -p $HDFS_NAMENODE_DIR
+    chown -R $HADOOP_USER:$HADOOP_USER $HDFS_NAMENODE_DIR
+    hadoop namenode -format 1>/dev/null 2>/dev/null
 fi
-
 if [ ! -d "$HDFS_DATANODE_DIR" ]; then
-  mkdir -p $HDFS_DATANODE_DIR
-  chown -R $HADOOP_USER:$HADOOP_USER $HDFS_DATANODE_DIR
-  hadoop datanode -format 1>/dev/null 2>/dev/null
+    mkdir -p $HDFS_DATANODE_DIR
+    chown -R $HADOOP_USER:$HADOOP_USER $HDFS_DATANODE_DIR
+    hadoop datanode -format 1>/dev/null 2>/dev/null
 fi
 
 for a in `ls -l hdfs|grep root|awk '{print $9}'`; do chown -R $HADOOP_USER:$HADOOP_USER hdfs/$a; done
@@ -40,19 +41,19 @@ for a in `ls -l hdfs|grep root|awk '{print $9}'`; do chown -R $HADOOP_USER:$HADO
 service ssh start
 
 # 3.0.3
-if [ "$HADOOP_VERSION" = "3.0.3" ]; then
-$HADOOP_HOME/bin/hdfs --daemon start namenode
-$HADOOP_HOME/bin/hdfs --daemon start datanode
-$HADOOP_HOME/bin/yarn --daemon start resourcemanager
-$HADOOP_HOME/bin/yarn --daemon start nodemanager
-su -l $HADOOP_USER -c "$HADOOP_HOME/bin/yarn --daemon start proxyserver"
-su -l $HADOOP_USER -c "$HADOOP_HOME/bin/mapred --daemon start historyserver"
+if [[ "$HADOOP_VERSION" =~ ^3.* ]]; then
+    $HADOOP_HOME/bin/hdfs --daemon start namenode
+    $HADOOP_HOME/bin/hdfs --daemon start datanode
+    $HADOOP_HOME/bin/yarn --daemon start resourcemanager
+    $HADOOP_HOME/bin/yarn --daemon start nodemanager
+    su -l $HADOOP_USER -c "$HADOOP_HOME/bin/yarn --daemon start proxyserver"
+    su -l $HADOOP_USER -c "$HADOOP_HOME/bin/mapred --daemon start historyserver"
 else
-#HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
-#HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
-$HADOOP_HOME/sbin/start-dfs.sh
-$HADOOP_HOME/sbin/start-yarn.sh
-$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
+    #HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
+    #HDFS_NAMENODE_USER=$HADOOP_USER HDFS_DATANODE_USER=$HADOOP_USER YARN_NODEMANAGER_USER=$HADOOP_USER YARN_RESOURCEMANAGER_USER=$HADOOP_USER sbin/start-all.sh &
+    su -l $HADOOP_USER -c "$HADOOP_HOME/sbin/start-dfs.sh"
+    su -l $HADOOP_USER -c "$HADOOP_HOME/sbin/start-yarn.sh"
+    su -l $HADOOP_USER -c "$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver"
 fi
 
 if [[ $1 == "-d" ]]; then
@@ -61,3 +62,4 @@ fi
 if [[ $1 == "-bash" ]]; then
   /bin/bash
 fi
+
