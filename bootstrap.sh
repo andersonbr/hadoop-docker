@@ -3,6 +3,29 @@
 : ${HADOOP_HOME:=/opt/hadoop}
 : ${HADOOP_USER:=hadoop}
 
+# envs
+if [ ! -f /etc/profile.d/envs.sh ]; then
+echo HADOOP_VERSION=${HADOOP_VERSION} >> /etc/profile.d/envs.sh
+echo HADOOP_HOME=${HADOOP_HOME} >> /etc/profile.d/envs.sh
+echo HADOOP_USER=${HADOOP_USER} >> /etc/profile.d/envs.sh
+echo HDFS_NAMENODE_USER=${HDFS_NAMENODE_USER} >> /etc/profile.d/envs.sh
+echo HDFS_SECONDARYNAMENODE_USER=${HDFS_SECONDARYNAMENODE_USER} >> /etc/profile.d/envs.sh
+echo HDFS_DATANODE_USER=${HDFS_DATANODE_USER} >> /etc/profile.d/envs.sh
+echo YARN_NODEMANAGER_USER=${YARN_NODEMANAGER_USER} >> /etc/profile.d/envs.sh
+echo YARN_RESOURCEMANAGER_USER=${YARN_RESOURCEMANAGER_USER} >> /etc/profile.d/envs.sh
+echo HADOOP_DOWNLOAD_URL=${HADOOP_DOWNLOAD_URL} >> /etc/profile.d/envs.sh
+echo HADOOP_COMMON_HOME=${HADOOP_COMMON_HOME} >> /etc/profile.d/envs.sh
+echo HADOOP_HDFS_HOME=${HADOOP_HDFS_HOME} >> /etc/profile.d/envs.sh
+echo HADOOP_MAPRED_HOME=${HADOOP_MAPRED_HOME} >> /etc/profile.d/envs.sh
+echo HADOOP_YARN_HOME=${HADOOP_YARN_HOME} >> /etc/profile.d/envs.sh
+echo HADOOP_CONF_DIR=${HADOOP_CONF_DIR} >> /etc/profile.d/envs.sh
+echo HDFS_NAMENODE_DIR=${HDFS_NAMENODE_DIR} >> /etc/profile.d/envs.sh
+echo HDFS_DATANODE_DIR=${HDFS_DATANODE_DIR} >> /etc/profile.d/envs.sh
+echo JAVA_HOME=${JAVA_HOME} >> /etc/profile.d/envs.sh
+echo BOOTSTRAP=${BOOTSTRAP} >> /etc/profile.d/envs.sh
+echo SPARK_HOME=${SPARK_HOME} >> /etc/profile.d/envs.sh
+fi
+
 source /etc/profile
 
 # $HADOOP_HOME/etc/hadoop/hadoop-env.sh
